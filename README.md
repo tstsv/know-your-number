@@ -1,4 +1,4 @@
-# know_your_number
+# A simple expense tracker project
 
 A new Flutter project.
 

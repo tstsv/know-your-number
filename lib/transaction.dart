@@ -1,5 +1,3 @@
-import 'package:know_your_number/category.dart';
-
 import 'database.dart';
 
 enum TransactionType {
@@ -16,7 +14,8 @@ class Transaction {
   int _categoryId;
   String _merchant;
 
-  Transaction(this._description, this._type, this._amount, this._categoryId, this._merchant,
+  Transaction(this._description, this._type, this._amount, this._categoryId,
+      this._merchant,
       {this.id});
 
   int getId() => id;
