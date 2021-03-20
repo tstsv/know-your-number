@@ -28,10 +28,20 @@ class _TransactionState extends State<TransactionWidget> {
   List<int> categories;
   TransactionCategory selectedTransactionCategory;
 
+  void setDefaultValue() {
+    dateController.text =
+        DateFormat().addPattern("dd-MM-yyyy").format(DateTime.now());
+    transactionTypeController.text = 'Expense';
+    descriptionController.text = "";
+    amountController.text = "";
+    categoryController.text = "";
+    merchantController.text = "";
+  }
+
   @override
   void initState() {
     super.initState();
-    dateController.text = DateFormat().addPattern("dd-MM-yyyy").format(DateTime.now());
+    setDefaultValue();
   }
 
   @override
@@ -42,19 +52,14 @@ class _TransactionState extends State<TransactionWidget> {
   }
 
   void _showScaffold(BuildContext context, String message) {
-    Scaffold.of(context).showSnackBar(SnackBar(
+    ScaffoldMessenger.maybeOf(context).showSnackBar(SnackBar(
       duration: Duration(seconds: 3),
       content: Text(message),
     ));
   }
 
   void resetFields() {
-    dateController.text = "";
-    descriptionController.text = "";
-    amountController.text = "";
-    transactionTypeController.text = "";
-    categoryController.text = "";
-    merchantController.text = "";
+    setDefaultValue();
     _node.unfocus();
   }
 
@@ -69,6 +74,39 @@ class _TransactionState extends State<TransactionWidget> {
             node: _node,
             child: Column(
               children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    CupertinoButton(
+                        child: Text(
+                          'Expense',
+                          style: TextStyle(
+                              color: transactionTypeController.text == 'Expense'
+                                  ? Colors.blue
+                                  : Colors.grey),
+                        ),
+                        onPressed: () {
+                          if (transactionTypeController.text != 'Expense') {
+                            transactionTypeController.text = 'Expense';
+                            setState(() {});
+                          }
+                        }),
+                    CupertinoButton(
+                        child: Text(
+                          'Income',
+                          style: TextStyle(
+                              color: transactionTypeController.text == 'Income'
+                                  ? Colors.blue
+                                  : Colors.grey),
+                        ),
+                        onPressed: () {
+                          if (transactionTypeController.text != 'Income') {
+                            transactionTypeController.text = 'Income';
+                            setState(() {});
+                          }
+                        }),
+                  ],
+                ),
                 GestureDetector(
                     child: AbsorbPointer(
                       child: TextField(
@@ -87,8 +125,11 @@ class _TransactionState extends State<TransactionWidget> {
                           firstDate:
                               DateTime.now().subtract(Duration(days: 60)),
                           lastDate: DateTime.now().add(Duration(days: 60)));
-                      dateController.text = dateTime != null ?
-                          DateFormat().addPattern("dd-MM-yyyy").format(dateTime) : dateController.text;
+                      dateController.text = dateTime != null
+                          ? DateFormat()
+                              .addPattern("dd-MM-yyyy")
+                              .format(dateTime)
+                          : dateController.text;
                     }),
                 TextField(
                   controller: descriptionController,
@@ -113,86 +154,13 @@ class _TransactionState extends State<TransactionWidget> {
                   ),
                   onEditingComplete: _node.nextFocus,
                 ),
-                GestureDetector(
-                    child: AbsorbPointer(
-                      child: TextField(
-                        controller: transactionTypeController,
-                        decoration: InputDecoration(
-                          labelText: "Type",
-                          floatingLabelBehavior: FloatingLabelBehavior.never,
-                        ),
-                        readOnly: true,
-                      ),
-                    ),
-                    onTap: () {
-                      showModalBottomSheet(
-                          isDismissible: true,
-                          context: context,
-                          builder: (BuildContext context) {
-                            return Container(
-                              height: 200.0,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: <Widget>[
-                                  Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        CupertinoButton(
-                                          child: Text("Cancel"),
-                                          onPressed: () {
-                                            Navigator.pop(context);
-                                          },
-                                        ),
-                                        CupertinoButton(
-                                          child: Text(
-                                            "Done",
-                                            textAlign: TextAlign.end,
-                                          ),
-                                          onPressed: () {
-                                            Navigator.pop(context);
-                                          },
-                                        ),
-                                      ]),
-                                  Expanded(
-                                    child: CupertinoPicker(
-                                      itemExtent: 32.0,
-                                      onSelectedItemChanged: (int index) {
-                                        setState(() {
-                                          _typeSelectedIndex = index;
-                                          transactionTypeController.text =
-                                              TransactionType.values[index]
-                                                  .toString()
-                                                  .split('.')
-                                                  .last;
-                                        });
-                                      },
-                                      children: new List<Widget>.generate(
-                                        TransactionType.values.length,
-                                        (int index) {
-                                          return new Center(
-                                            child: new Text(TransactionType
-                                                .values[index]
-                                                .toString()
-                                                .split('.')
-                                                .last),
-                                          );
-                                        },
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          });
-                    }),
                 CategorySelectionWidget(
                     categoryController,
                     (_selectedCategory) => setState(() {
                           selectedTransactionCategory = _selectedCategory;
                         })),
                 Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                  RaisedButton(
+                  ElevatedButton(
                     child: Text('Save'),
                     onPressed: () {
                       String description = descriptionController.text;
@@ -200,10 +168,14 @@ class _TransactionState extends State<TransactionWidget> {
                           double.tryParse(amountController.text) ?? 0;
                       TransactionType transactionType =
                           TransactionType.values[_typeSelectedIndex];
-                      model.addTransaction(
-                          new Transaction(description, transactionType, amount,
-                              selectedTransactionCategory.id(), merchantController.text));
-                      _showScaffold(context, "Transaction has been saved successfully");
+                      model.addTransaction(new Transaction(
+                          description,
+                          transactionType,
+                          amount,
+                          selectedTransactionCategory.id(),
+                          merchantController.text));
+                      _showScaffold(
+                          context, "Transaction has been saved successfully");
                       setState(() {
                         resetFields();
                       });
@@ -212,7 +184,7 @@ class _TransactionState extends State<TransactionWidget> {
                   SizedBox(
                     width: 16,
                   ),
-                  RaisedButton(
+                  ElevatedButton(
                     child: Text('Clear'),
                     onPressed: () {
                       setState(() {
