@@ -29,10 +29,7 @@ class MyStatefulWidget extends StatefulWidget {
 /// This is the private State class that goes with MyStatefulWidget.
 class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   int _selectedIndex = 0;
-  static List<Widget> _widgetOptions = <Widget>[
-    TransactionWidget(),
-    TransactionListWidget(),
-  ];
+  int _selectedTransactionId = -1;
 
   void _onItemTapped(int index) {
     setState(() {
@@ -40,8 +37,19 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
     });
   }
 
+  void _transitToTransactionWidget(int selectedTransactionId) {
+    setState(() {
+      _selectedTransactionId = selectedTransactionId;
+      _selectedIndex = 0;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    List<Widget> _widgetOptions = <Widget>[
+      TransactionWidget(_selectedTransactionId),
+      TransactionListWidget(_transitToTransactionWidget),
+    ];
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,

@@ -79,6 +79,7 @@ class DatabaseHelper {
     await db.execute('''
           CREATE TABLE $transactionTable (
             $columnIdCreateStatement,
+            $columnDate INT NULL,
             $columnDescription TEXT NOT NULL,
             $columnType INTEGER NOT NULL,
             $columnAmount DOUBLE DEFAULT 0,
@@ -99,8 +100,7 @@ class DatabaseHelper {
     });
   }
 
-  Future _onUpgrade(Database db, int oldVersion, int newVersion) async {
-  }
+  Future _onUpgrade(Database db, int oldVersion, int newVersion) async {}
 
   // Helper methods
 
@@ -119,7 +119,8 @@ class DatabaseHelper {
     return await db.query(tableName);
   }
 
-  Future<List<Map<String, dynamic>>> queryWhere(String tableName, String whereClaues) async {
+  Future<List<Map<String, dynamic>>> queryWhere(
+      String tableName, String whereClaues) async {
     Database db = await instance.database;
     return await db.query(tableName, where: whereClaues);
   }
@@ -136,7 +137,7 @@ class DatabaseHelper {
   // column values will be used to update the row.
   Future<int> update(tableName, Map<String, dynamic> row) async {
     Database db = await instance.database;
-    String id = row[columnId];
+    int id = row[columnId];
     return await db
         .update(tableName, row, where: '$columnId = ?', whereArgs: [id]);
   }
@@ -157,5 +158,4 @@ class DatabaseHelper {
     Database db = await instance.database;
     return await db.rawQuery(query);
   }
-
 }
