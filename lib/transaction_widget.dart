@@ -9,13 +9,13 @@ import 'category_widget.dart';
 import 'model.dart';
 
 class TransactionWidget extends StatefulWidget {
-  TransactionWidget({Key key}) : super(key: key);
+  final int _transactionId;
+  TransactionWidget(this._transactionId, {Key key}) : super(key: key);
 
   @override
-  _TransactionState createState() => _TransactionState();
+  _TransactionState createState() => _TransactionState(_transactionId);
 }
 
-/// This is the private State class that goes with MyStatefulWidget.
 class _TransactionState extends State<TransactionWidget> {
   int _typeSelectedIndex = 0;
   final dateController = TextEditingController();
@@ -28,6 +28,11 @@ class _TransactionState extends State<TransactionWidget> {
   List<int> categories;
   TransactionCategory selectedTransactionCategory;
 
+  int _transactionId;
+  Transaction selectedTransaction;
+
+  _TransactionState(this._transactionId) : super();
+
   void setDefaultValue() {
     dateController.text =
         DateFormat().addPattern("dd-MM-yyyy").format(DateTime.now());
@@ -36,6 +41,18 @@ class _TransactionState extends State<TransactionWidget> {
     amountController.text = "";
     categoryController.text = "";
     merchantController.text = "";
+  }
+
+  void populateTransactionData(Transaction transaction) {
+    dateController.text = DateFormat()
+        .addPattern("dd-MM-yyyy")
+        .format(DateTime.fromMillisecondsSinceEpoch(transaction.date()));
+    transactionTypeController.text = transaction.type().toString();
+    descriptionController.text = transaction.description();
+    amountController.text =
+        new NumberFormat.currency(locale: "vi_VN", symbol: "")
+            .format(transaction.amount());
+    merchantController.text = transaction.merchant();
   }
 
   @override
@@ -70,6 +87,13 @@ class _TransactionState extends State<TransactionWidget> {
       child: ScopedModelDescendant<TransactionModel>(
         rebuildOnChange: true,
         builder: (context, child, model) {
+          Transaction transaction = model.getTransaction(_transactionId);
+          if (transaction != null) {
+            selectedTransactionCategory =
+                model.getCategory(transaction.categoryId());
+            categoryController.text = selectedTransactionCategory.getName();
+            populateTransactionData(transaction);
+          }
           return FocusScope(
             node: _node,
             child: Column(
@@ -88,7 +112,10 @@ class _TransactionState extends State<TransactionWidget> {
                         onPressed: () {
                           if (transactionTypeController.text != 'Expense') {
                             transactionTypeController.text = 'Expense';
-                            setState(() {});
+                            setState(() {
+                              _typeSelectedIndex =
+                                  TransactionType.expense.index;
+                            });
                           }
                         }),
                     CupertinoButton(
@@ -102,7 +129,9 @@ class _TransactionState extends State<TransactionWidget> {
                         onPressed: () {
                           if (transactionTypeController.text != 'Income') {
                             transactionTypeController.text = 'Income';
-                            setState(() {});
+                            setState(() {
+                              _typeSelectedIndex = TransactionType.income.index;
+                            });
                           }
                         }),
                   ],
@@ -139,7 +168,7 @@ class _TransactionState extends State<TransactionWidget> {
                   onEditingComplete: _node.nextFocus,
                 ),
                 TextField(
-                  keyboardType: TextInputType.number,
+                  keyboardType: TextInputType.numberWithOptions(decimal: true),
                   controller: amountController,
                   decoration: InputDecoration(
                     labelText: "Amount",
@@ -165,18 +194,36 @@ class _TransactionState extends State<TransactionWidget> {
                     onPressed: () {
                       String description = descriptionController.text;
                       double amount =
-                          double.tryParse(amountController.text) ?? 0;
+                          new NumberFormat.currency(locale: "vi_VN", symbol: "")
+                                  .parse(amountController.text) ??
+                              0;
                       TransactionType transactionType =
                           TransactionType.values[_typeSelectedIndex];
-                      model.addTransaction(new Transaction(
-                          description,
-                          transactionType,
-                          amount,
-                          selectedTransactionCategory.id(),
-                          merchantController.text));
+                      DateTime transactionDate = DateFormat()
+                          .addPattern("dd-MM-yyyy")
+                          .parse(dateController.text);
+                      model.addTransaction(
+                        _transactionId != -1
+                            ? new Transaction(
+                                transactionDate.millisecondsSinceEpoch,
+                                description,
+                                transactionType,
+                                amount,
+                                selectedTransactionCategory.id(),
+                                merchantController.text,
+                                id: _transactionId)
+                            : new Transaction(
+                                transactionDate.millisecondsSinceEpoch,
+                                description,
+                                transactionType,
+                                amount,
+                                selectedTransactionCategory.id(),
+                                merchantController.text),
+                      );
                       _showScaffold(
                           context, "Transaction has been saved successfully");
                       setState(() {
+                        _transactionId = -1;
                         resetFields();
                       });
                     },
@@ -188,6 +235,7 @@ class _TransactionState extends State<TransactionWidget> {
                     child: Text('Clear'),
                     onPressed: () {
                       setState(() {
+                        _transactionId = -1;
                         resetFields();
                       });
                     },

@@ -1,24 +1,25 @@
 import 'database.dart';
 
 enum TransactionType {
-  income,
   expense,
-  transfer,
+  income,
 }
 
 class Transaction {
   int id;
+  int _date;
   String _description;
   TransactionType _type;
   double _amount;
   int _categoryId;
   String _merchant;
 
-  Transaction(this._description, this._type, this._amount, this._categoryId,
-      this._merchant,
+  Transaction(this._date, this._description, this._type, this._amount,
+      this._categoryId, this._merchant,
       {this.id});
 
   int getId() => id;
+  int date() => _date;
   String description() => _description;
   TransactionType type() => _type;
   double amount() => _amount;
@@ -27,6 +28,7 @@ class Transaction {
 
   Map<String, dynamic> toDatabseRow() {
     Map<String, dynamic> databaseRow = {
+      DatabaseHelper.columnDate: _date,
       DatabaseHelper.columnDescription: _description,
       DatabaseHelper.columnType: this._type.index,
       DatabaseHelper.columnAmount: this._amount,

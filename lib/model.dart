@@ -21,9 +21,17 @@ class TransactionModel extends Model {
     notifyListeners();
   }
 
+  Transaction getTransaction(int id) => (id == -1 || _transactions.isEmpty)
+      ? null
+      : (_transactions.firstWhere((element) => element.id == id));
+
   void addTransaction(Transaction transaction) async {
-    if (transaction.id == null) {
-      dbHelper.insert(DatabaseHelper.transactionTable, transaction.toDatabseRow());
+    if (transaction.id == null || transaction.id == -1) {
+      dbHelper.insert(
+          DatabaseHelper.transactionTable, transaction.toDatabseRow());
+    } else {
+      dbHelper.update(
+          DatabaseHelper.transactionTable, transaction.toDatabseRow());
     }
 
     notifyListeners();
@@ -44,6 +52,20 @@ class TransactionModel extends Model {
 
   List<TransactionCategory> getCategories() => _categories;
   List<Transaction> getTransactions() => _transactions;
+  List<Transaction> getTransactionsByDateRange(
+      DateTime startDate, DateTime endDate) {
+    startDate = startDate.subtract(Duration(days: 1));
+    startDate = new DateTime(
+        startDate.year, startDate.month, startDate.day, 23, 59, 59);
+    endDate = endDate.add(Duration(days: 1));
+    endDate = new DateTime(endDate.year, endDate.month, endDate.day);
+    return _transactions.where((element) {
+      DateTime transactionDate =
+          DateTime.fromMillisecondsSinceEpoch(element.date());
+      return transactionDate.isAfter(startDate) &&
+          transactionDate.isBefore(endDate);
+    }).toList();
+  }
 
   TransactionCategory getCategory(int id) {
     return _categories.firstWhere((element) => element.id() == id);
@@ -65,13 +87,15 @@ class TransactionModel extends Model {
     var data = await dbHelper.queryAllRows(DatabaseHelper.transactionTable);
     List<Transaction> transactions = data.map((element) {
       var id = element[DatabaseHelper.columnId];
+      var date = element[DatabaseHelper.columnDate];
       var desc = element[DatabaseHelper.columnDescription];
       var type = element[DatabaseHelper.columnType];
       var amount = element[DatabaseHelper.columnAmount];
       var tranCatId = element[DatabaseHelper.columnCategoryId];
       var merchant = element[DatabaseHelper.columnMerchant];
       TransactionType tranType = TransactionType.values[type];
-      return new Transaction(desc, tranType, amount, tranCatId, merchant, id: id);
+      return new Transaction(date, desc, tranType, amount, tranCatId, merchant,
+          id: id);
     }).toList();
     return transactions;
   }
