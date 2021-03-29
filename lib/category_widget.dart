@@ -34,7 +34,7 @@ class _CategorySelectionState extends State<CategorySelectionWidget> {
     return ScopedModel<CategoryModel>(
       model: CategoryModel(),
       child: ScopedModelDescendant<CategoryModel>(
-      builder: (context, child, model) {
+          builder: (context, child, model) {
         _categoriesList = model.getCategories();
         categories = _categoriesList.map((t) => t.id()).toList();
         return TextField(
@@ -49,10 +49,12 @@ class _CategorySelectionState extends State<CategorySelectionWidget> {
             if (!model.done) {
               return;
             }
-            _currentSelectedIndex = await showTransactionList(originalSelectedIndex);
+            _currentSelectedIndex =
+                await showTransactionList(originalSelectedIndex);
             TransactionCategory selectedTransactionCategory =
-                                  _categoriesList.firstWhere((element) =>
-                                      element.id() == categories[_currentSelectedIndex ?? originalSelectedIndex]);
+                _categoriesList.firstWhere((element) =>
+                    element.id() ==
+                    categories[_currentSelectedIndex ?? originalSelectedIndex]);
             _callback(selectedTransactionCategory);
           },
         );
@@ -61,7 +63,7 @@ class _CategorySelectionState extends State<CategorySelectionWidget> {
   }
 
   Future<int> showTransactionList(originalSelectedIndex) {
-  return showModalBottomSheet<int>(
+    return showModalBottomSheet<int>(
       isDismissible: true,
       context: context,
       builder: (BuildContext context) {
@@ -70,56 +72,53 @@ class _CategorySelectionState extends State<CategorySelectionWidget> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    CupertinoButton(
-                      // color: Colors.blue,
-                      child: Text("Cancel"),
-                      onPressed: () {
-                        _currentSelectedIndex = originalSelectedIndex;
-                        TransactionCategory
-                            selectedTransactionCategory =
-                            _categoriesList.firstWhere((element) =>
-                                element.id() ==
-                                categories[_currentSelectedIndex]);
-                        _categoryController.text =
-                            selectedTransactionCategory.getName();
-                        Navigator.pop(context, _currentSelectedIndex);
-                      },
-                    ),
-                    CupertinoButton(
-                      // color: Colors.red,
-                      child: Text(
-                        "Done",
-                        textAlign: TextAlign.end,
-                      ),
-                      onPressed: () {
-                        Navigator.pop(context, _currentSelectedIndex);
-                      },
-                    ),
-                  ]),
+              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                CupertinoButton(
+                  // color: Colors.blue,
+                  child: Text("Cancel"),
+                  onPressed: () {
+                    _currentSelectedIndex = originalSelectedIndex;
+                    TransactionCategory selectedTransactionCategory =
+                        _categoriesList.firstWhere((element) =>
+                            element.id() == categories[_currentSelectedIndex]);
+                    _categoryController.text =
+                        selectedTransactionCategory.name();
+                    Navigator.pop(context, _currentSelectedIndex);
+                  },
+                ),
+                CupertinoButton(
+                  // color: Colors.red,
+                  child: Text(
+                    "Done",
+                    textAlign: TextAlign.end,
+                  ),
+                  onPressed: () {
+                    Navigator.pop(context, _currentSelectedIndex);
+                  },
+                ),
+              ]),
               Expanded(
                 child: CupertinoPicker(
-                  scrollController: FixedExtentScrollController(initialItem: originalSelectedIndex),
+                  scrollController: FixedExtentScrollController(
+                      initialItem: originalSelectedIndex),
                   itemExtent: 32.0,
                   onSelectedItemChanged: (int index) {
                     setState(() {
                       _currentSelectedIndex = index;
                       TransactionCategory selectedTransactionCategory =
-                          _categoriesList.firstWhere((element) =>
-                              element.id() == categories[index]);
+                          _categoriesList.firstWhere(
+                              (element) => element.id() == categories[index]);
                       _categoryController.text =
-                          selectedTransactionCategory.getName();
+                          selectedTransactionCategory.name();
                     });
                   },
-                  children: new List<Widget>.generate(
-                      _categoriesList.length, (int index) {
+                  children: new List<Widget>.generate(_categoriesList.length,
+                      (int index) {
                     return new Center(
                       child: new Text(_categoriesList
-                          .firstWhere((element) =>
-                              element.id() == categories[index])
-                          .getName()),
+                          .firstWhere(
+                              (element) => element.id() == categories[index])
+                          .name()),
                     );
                   }),
                 ),
@@ -131,5 +130,3 @@ class _CategorySelectionState extends State<CategorySelectionWidget> {
     );
   }
 }
-
-
