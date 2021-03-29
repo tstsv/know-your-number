@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:know_your_number/category.dart';
+import 'package:know_your_number/config_helper.dart';
 import 'package:know_your_number/transaction.dart';
 import 'package:scoped_model/scoped_model.dart';
 
@@ -33,7 +34,7 @@ class _TransactionState extends State<TransactionWidget> {
 
   _TransactionState(this._transactionId) : super();
 
-  void setDefaultValue() {
+  void setDefaultValue() async {
     dateController.text =
         DateFormat().addPattern("dd-MM-yyyy").format(DateTime.now());
     transactionTypeController.text = 'Expense';
@@ -50,8 +51,7 @@ class _TransactionState extends State<TransactionWidget> {
     transactionTypeController.text = transaction.type().toString();
     descriptionController.text = transaction.description();
     amountController.text =
-        new NumberFormat.currency(locale: "vi_VN", symbol: "")
-            .format(transaction.amount());
+        ConfigHelper.instance.convertToCurrencyLocale(transaction.amount());
     merchantController.text = transaction.merchant();
   }
 
@@ -91,7 +91,7 @@ class _TransactionState extends State<TransactionWidget> {
           if (transaction != null) {
             selectedTransactionCategory =
                 model.getCategory(transaction.categoryId());
-            categoryController.text = selectedTransactionCategory.getName();
+            categoryController.text = selectedTransactionCategory.name();
             populateTransactionData(transaction);
           }
           return FocusScope(
@@ -190,13 +190,12 @@ class _TransactionState extends State<TransactionWidget> {
                         })),
                 Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                   ElevatedButton(
-                    child: Text('Save'),
+                    child: Text("Save"),
                     onPressed: () {
                       String description = descriptionController.text;
-                      double amount =
-                          new NumberFormat.currency(locale: "vi_VN", symbol: "")
-                                  .parse(amountController.text) ??
-                              0;
+                      double amount = ConfigHelper.instance
+                              .parseAmount(amountController.text) ??
+                          0;
                       TransactionType transactionType =
                           TransactionType.values[_typeSelectedIndex];
                       DateTime transactionDate = DateFormat()

@@ -100,3 +100,79 @@ class TransactionModel extends Model {
     return transactions;
   }
 }
+
+class CategoryModel extends Model {
+  final dbHelper = DatabaseHelper.instance;
+
+  List<TransactionCategory> _categories = [];
+  List<Transaction> _transactions = [];
+
+  CategoryModel() {
+    initData();
+  }
+
+  void initData() async {
+    notifyListeners();
+  }
+
+  TransactionCategory getCategory(int id) => (id == -1 || _categories.isEmpty)
+      ? null
+      : (_categories.firstWhere((element) => element.id() == id));
+
+  Future<List<Transaction>> getTransactions() async => allTransactions();
+
+  void addCategory(TransactionCategory category) async {
+    if (category.id() == null || category.id() == -1) {
+      dbHelper.insert(DatabaseHelper.categoryTable, category.toDatabseRow());
+    } else {
+      dbHelper.update(DatabaseHelper.categoryTable, category.toDatabseRow());
+    }
+
+    notifyListeners();
+  }
+
+  void deleteCategory(TransactionCategory category) async {
+    if (category.id() != null) {
+      dbHelper.delete(DatabaseHelper.categoryTable, category.id());
+      _categories = await allCategories();
+    }
+
+    notifyListeners();
+  }
+
+  void notify() {
+    notifyListeners();
+  }
+
+  Future<List<TransactionCategory>> getCategories() {
+    return _categories.isEmpty ? allCategories() : _categories;
+  }
+
+  Future<List<TransactionCategory>> allCategories() async {
+    var data = await dbHelper.queryAllRows(DatabaseHelper.categoryTable);
+    return data.map((element) {
+      var id = element[DatabaseHelper.columnId];
+      var name = element[DatabaseHelper.columnName];
+      var desc = element[DatabaseHelper.columnDescription];
+      var budget = element[DatabaseHelper.columnBudget];
+      return new TransactionCategory(id, name, desc, budget);
+    }).toList();
+  }
+
+  Future<List<Transaction>> allTransactions() async {
+    var data = await dbHelper.queryAllRows(DatabaseHelper.transactionTable);
+    List<Transaction> transactions = data.map((element) {
+      var id = element[DatabaseHelper.columnId];
+      var date = element[DatabaseHelper.columnDate];
+      var desc = element[DatabaseHelper.columnDescription];
+      var type = element[DatabaseHelper.columnType];
+      var amount = element[DatabaseHelper.columnAmount];
+      var tranCatId = element[DatabaseHelper.columnCategoryId];
+      var merchant = element[DatabaseHelper.columnMerchant];
+      TransactionType tranType = TransactionType.values[type];
+      return new Transaction(date, desc, tranType, amount, tranCatId, merchant,
+          id: id);
+    }).toList();
+    return transactions;
+  }
+}
