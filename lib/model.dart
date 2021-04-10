@@ -78,7 +78,8 @@ class TransactionModel extends Model {
       var name = element[DatabaseHelper.columnName];
       var desc = element[DatabaseHelper.columnDescription];
       var budget = element[DatabaseHelper.columnBudget];
-      return new TransactionCategory(id, name, desc, budget);
+      var frequency = element[DatabaseHelper.columnFrequency];
+      return new TransactionCategory(id, name, desc, budget, frequency);
     }).toList();
     return budgets;
   }
@@ -155,7 +156,8 @@ class CategoryModel extends Model {
       var name = element[DatabaseHelper.columnName];
       var desc = element[DatabaseHelper.columnDescription];
       var budget = element[DatabaseHelper.columnBudget];
-      return new TransactionCategory(id, name, desc, budget);
+      var frequency = element[DatabaseHelper.columnFrequency];
+      return new TransactionCategory(id, name, desc, budget, frequency);
     }).toList();
   }
 

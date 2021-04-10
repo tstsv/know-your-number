@@ -30,6 +30,7 @@ class DatabaseHelper {
   static final columnNote = 'note';
   static final columnCategoryId = 'category_id';
   static final columnMerchant = 'merchant';
+  static final columnFrequency = 'frequency';
 
   // make this a singleton class
   DatabaseHelper._privateConstructor();
@@ -63,7 +64,8 @@ class DatabaseHelper {
             $columnIdCreateStatement,
             $columnName TEXT NOT NULL,
             $columnDescription TEXT NOT NULL,
-            $columnBudget DOUBLE DEFAULT 0
+            $columnBudget DOUBLE DEFAULT 0,
+            $columnFrequency INT DEFAULT 2
           )
           ''');
     await db.execute('''
@@ -91,12 +93,14 @@ class DatabaseHelper {
     await db.insert(categoryTable, {
       columnName: "Meal",
       columnDescription: "Dine out or takeaway meal",
-      columnBudget: 1000000
+      columnBudget: 1000000,
+      columnFrequency: 2,
     });
     await db.insert(categoryTable, {
       columnName: "Housing",
       columnDescription: "Purchases for the House",
-      columnBudget: 1000000
+      columnBudget: 1000000,
+      columnFrequency: 2,
     });
   }
 

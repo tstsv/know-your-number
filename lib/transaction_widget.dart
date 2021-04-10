@@ -94,153 +94,163 @@ class _TransactionState extends State<TransactionWidget> {
             categoryController.text = selectedTransactionCategory.name();
             populateTransactionData(transaction);
           }
-          return FocusScope(
-            node: _node,
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    CupertinoButton(
-                        child: Text(
-                          'Expense',
-                          style: TextStyle(
-                              color: transactionTypeController.text == 'Expense'
-                                  ? Colors.blue
-                                  : Colors.grey),
+          return SingleChildScrollView(
+            child: FocusScope(
+              node: _node,
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      CupertinoButton(
+                          child: Text(
+                            'Expense',
+                            style: TextStyle(
+                                color:
+                                    transactionTypeController.text == 'Expense'
+                                        ? Colors.blue
+                                        : Colors.grey),
+                          ),
+                          onPressed: () {
+                            if (transactionTypeController.text != 'Expense') {
+                              transactionTypeController.text = 'Expense';
+                              setState(() {
+                                _typeSelectedIndex =
+                                    TransactionType.expense.index;
+                              });
+                            }
+                          }),
+                      CupertinoButton(
+                          child: Text(
+                            'Income',
+                            style: TextStyle(
+                                color:
+                                    transactionTypeController.text == 'Income'
+                                        ? Colors.blue
+                                        : Colors.grey),
+                          ),
+                          onPressed: () {
+                            if (transactionTypeController.text != 'Income') {
+                              transactionTypeController.text = 'Income';
+                              setState(() {
+                                _typeSelectedIndex =
+                                    TransactionType.income.index;
+                              });
+                            }
+                          }),
+                    ],
+                  ),
+                  GestureDetector(
+                      child: AbsorbPointer(
+                        child: TextField(
+                          controller: dateController,
+                          decoration: InputDecoration(
+                            labelText: "Date",
+                            floatingLabelBehavior: FloatingLabelBehavior.never,
+                          ),
+                          readOnly: true,
                         ),
-                        onPressed: () {
-                          if (transactionTypeController.text != 'Expense') {
-                            transactionTypeController.text = 'Expense';
-                            setState(() {
-                              _typeSelectedIndex =
-                                  TransactionType.expense.index;
-                            });
-                          }
-                        }),
-                    CupertinoButton(
-                        child: Text(
-                          'Income',
-                          style: TextStyle(
-                              color: transactionTypeController.text == 'Income'
-                                  ? Colors.blue
-                                  : Colors.grey),
-                        ),
-                        onPressed: () {
-                          if (transactionTypeController.text != 'Income') {
-                            transactionTypeController.text = 'Income';
-                            setState(() {
-                              _typeSelectedIndex = TransactionType.income.index;
-                            });
-                          }
-                        }),
-                  ],
-                ),
-                GestureDetector(
-                    child: AbsorbPointer(
-                      child: TextField(
-                        controller: dateController,
-                        decoration: InputDecoration(
-                          labelText: "Date",
-                          floatingLabelBehavior: FloatingLabelBehavior.never,
-                        ),
-                        readOnly: true,
                       ),
+                      onTap: () async {
+                        DateTime dateTime = await showDatePicker(
+                            context: context,
+                            initialDate: DateTime.now(),
+                            firstDate:
+                                DateTime.now().subtract(Duration(days: 60)),
+                            lastDate: DateTime.now().add(Duration(days: 60)));
+                        dateController.text = dateTime != null
+                            ? DateFormat()
+                                .addPattern("dd-MM-yyyy")
+                                .format(dateTime)
+                            : dateController.text;
+                      }),
+                  TextField(
+                    controller: descriptionController,
+                    decoration: InputDecoration(
+                      labelText: "Description",
                     ),
-                    onTap: () async {
-                      DateTime dateTime = await showDatePicker(
-                          context: context,
-                          initialDate: DateTime.now(),
-                          firstDate:
-                              DateTime.now().subtract(Duration(days: 60)),
-                          lastDate: DateTime.now().add(Duration(days: 60)));
-                      dateController.text = dateTime != null
-                          ? DateFormat()
-                              .addPattern("dd-MM-yyyy")
-                              .format(dateTime)
-                          : dateController.text;
-                    }),
-                TextField(
-                  controller: descriptionController,
-                  decoration: InputDecoration(
-                    labelText: "Description",
+                    onEditingComplete: _node.nextFocus,
                   ),
-                  onEditingComplete: _node.nextFocus,
-                ),
-                TextField(
-                  keyboardType: TextInputType.numberWithOptions(decimal: true),
-                  controller: amountController,
-                  decoration: InputDecoration(
-                    labelText: "Amount",
+                  TextField(
+                    keyboardType:
+                        TextInputType.numberWithOptions(decimal: true),
+                    controller: amountController,
+                    decoration: InputDecoration(
+                      labelText: "Amount",
+                    ),
+                    onEditingComplete: _node.nextFocus,
                   ),
-                  onEditingComplete: _node.nextFocus,
-                ),
-                TextField(
-                  keyboardType: TextInputType.text,
-                  controller: merchantController,
-                  decoration: InputDecoration(
-                    labelText: "Merchant",
+                  TextField(
+                    keyboardType: TextInputType.text,
+                    controller: merchantController,
+                    decoration: InputDecoration(
+                      labelText: "Merchant",
+                    ),
+                    onEditingComplete: _node.nextFocus,
                   ),
-                  onEditingComplete: _node.nextFocus,
-                ),
-                CategorySelectionWidget(
-                    categoryController,
-                    (_selectedCategory) => setState(() {
-                          selectedTransactionCategory = _selectedCategory;
-                        })),
-                Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                  ElevatedButton(
-                    child: Text("Save"),
-                    onPressed: () {
-                      String description = descriptionController.text;
-                      double amount = ConfigHelper.instance
-                              .parseAmount(amountController.text) ??
-                          0;
-                      TransactionType transactionType =
-                          TransactionType.values[_typeSelectedIndex];
-                      DateTime transactionDate = DateFormat()
-                          .addPattern("dd-MM-yyyy")
-                          .parse(dateController.text);
-                      model.addTransaction(
-                        _transactionId != -1
-                            ? new Transaction(
-                                transactionDate.millisecondsSinceEpoch,
-                                description,
-                                transactionType,
-                                amount,
-                                selectedTransactionCategory.id(),
-                                merchantController.text,
-                                id: _transactionId)
-                            : new Transaction(
-                                transactionDate.millisecondsSinceEpoch,
-                                description,
-                                transactionType,
-                                amount,
-                                selectedTransactionCategory.id(),
-                                merchantController.text),
-                      );
-                      _showScaffold(
-                          context, "Transaction has been saved successfully");
-                      setState(() {
-                        _transactionId = -1;
-                        resetFields();
-                      });
-                    },
-                  ),
-                  SizedBox(
-                    width: 16,
-                  ),
-                  ElevatedButton(
-                    child: Text('Clear'),
-                    onPressed: () {
-                      setState(() {
-                        _transactionId = -1;
-                        resetFields();
-                      });
-                    },
-                  ),
-                ]),
-              ],
+                  CategorySelectionWidget(
+                      categoryController,
+                      (_selectedCategory) => setState(() {
+                            selectedTransactionCategory = _selectedCategory;
+                          })),
+                  Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                    ElevatedButton(
+                      child: Text(ConfigHelper.instance
+                          .localizations()
+                          .saveButtonLabel),
+                      onPressed: () {
+                        String description = descriptionController.text;
+                        double amount = ConfigHelper.instance
+                                .parseAmount(amountController.text) ??
+                            0;
+                        TransactionType transactionType =
+                            TransactionType.values[_typeSelectedIndex];
+                        DateTime transactionDate = DateFormat()
+                            .addPattern("dd-MM-yyyy")
+                            .parse(dateController.text);
+                        model.addTransaction(
+                          _transactionId != -1
+                              ? new Transaction(
+                                  transactionDate.millisecondsSinceEpoch,
+                                  description,
+                                  transactionType,
+                                  amount,
+                                  selectedTransactionCategory.id(),
+                                  merchantController.text,
+                                  id: _transactionId)
+                              : new Transaction(
+                                  transactionDate.millisecondsSinceEpoch,
+                                  description,
+                                  transactionType,
+                                  amount,
+                                  selectedTransactionCategory.id(),
+                                  merchantController.text),
+                        );
+                        _showScaffold(
+                            context, "Transaction has been saved successfully");
+                        setState(() {
+                          _transactionId = -1;
+                          resetFields();
+                        });
+                      },
+                    ),
+                    SizedBox(
+                      width: 16,
+                    ),
+                    ElevatedButton(
+                      child: Text(ConfigHelper.instance
+                          .localizations()
+                          .cancelButtonLabel),
+                      onPressed: () {
+                        setState(() {
+                          _transactionId = -1;
+                          resetFields();
+                        });
+                      },
+                    ),
+                  ]),
+                ],
+              ),
             ),
           );
         },

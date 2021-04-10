@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:know_your_number/category.dart';
 import 'package:know_your_number/category_model.dart';
+import 'package:know_your_number/config_helper.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 class CategorySelectionWidget extends StatefulWidget {
@@ -64,7 +65,7 @@ class _CategorySelectionState extends State<CategorySelectionWidget> {
 
   Future<int> showTransactionList(originalSelectedIndex) {
     return showModalBottomSheet<int>(
-      isDismissible: true,
+      isDismissible: false,
       context: context,
       builder: (BuildContext context) {
         return Container(
@@ -75,7 +76,8 @@ class _CategorySelectionState extends State<CategorySelectionWidget> {
               Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                 CupertinoButton(
                   // color: Colors.blue,
-                  child: Text("Cancel"),
+                  child: Text(
+                      ConfigHelper.instance.localizations().cancelButtonLabel),
                   onPressed: () {
                     _currentSelectedIndex = originalSelectedIndex;
                     TransactionCategory selectedTransactionCategory =
@@ -89,7 +91,7 @@ class _CategorySelectionState extends State<CategorySelectionWidget> {
                 CupertinoButton(
                   // color: Colors.red,
                   child: Text(
-                    "Done",
+                    ConfigHelper.instance.localizations().okButtonLabel,
                     textAlign: TextAlign.end,
                   ),
                   onPressed: () {
