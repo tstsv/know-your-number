@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 
@@ -9,6 +10,8 @@ class ConfigHelper {
   String _locale = "en_VN";
   String _currencySymbol = "";
   double _maxDecimal = 2;
+  MaterialLocalizations _localizations;
+
   ConfigHelper._privateConstructor() {
     // initLocale();
   }
@@ -49,4 +52,7 @@ class ConfigHelper {
   String localeCountry() => _locale.substring(_locale.indexOf("_") + 1);
   Locale localeObj() => Locale(this.localeLangue(), this.localeCountry());
   bool localeInit(String locale) => _supportedLocales[locale];
+  void setLocalizations(MaterialLocalizations localizations) =>
+      this._localizations = localizations;
+  MaterialLocalizations localizations() => _localizations;
 }

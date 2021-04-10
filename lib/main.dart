@@ -4,6 +4,7 @@ import 'package:know_your_number/config_helper.dart';
 import 'package:know_your_number/transaction_list.dart';
 import 'package:know_your_number/transaction_widget.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() => runApp(MyApp());
 
@@ -33,10 +34,23 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   final configHelper = ConfigHelper.instance;
   int _selectedIndex = 0;
   int _selectedTransactionId = -1;
+  MaterialLocalizations localizations;
 
   @override
   void initState() {
-    configHelper.config(locale: "en_VN", currencySymbol: "");
+    configHelper.config(locale: "vi_VN", currencySymbol: "");
+    initLocale(configHelper.localeObj());
+
+    super.initState();
+  }
+
+  initLocale(Locale locale) async {
+    localizations = locale == null
+        ? MaterialLocalizations.of(context)
+        : await GlobalMaterialLocalizations.delegate.load(locale);
+    if (localizations != null) {
+      configHelper.setLocalizations(localizations);
+    }
   }
 
   void _onItemTapped(int index) {
@@ -83,11 +97,12 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
           TextButton(
             onPressed: () {
               String locale =
-                  ConfigHelper.instance.locale() == "vi_VN" ? "en_VN" : "vi_VN";
-              ConfigHelper.instance.config(locale: locale, currencySymbol: "");
+                  configHelper.locale() == "vi_VN" ? "en_VN" : "vi_VN";
+              configHelper.config(locale: locale, currencySymbol: "");
+              initLocale(configHelper.localeObj());
               setState(() {});
             },
-            child: Text(ConfigHelper.instance.locale(),
+            child: Text(configHelper.locale(),
                 style: TextStyle(color: Colors.red)),
           ),
         ]),
@@ -98,16 +113,16 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
         unselectedItemColor: Colors.black,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(FontAwesomeIcons.piggyBank),
-            label: 'Budgets',
+            icon: Icon(Icons.add),
+            label: 'New',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.monetization_on),
-            label: 'Transactions',
+            label: 'History',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.category),
-            label: 'Categories',
+            icon: Icon(FontAwesomeIcons.piggyBank),
+            label: 'Budgets',
           ),
         ],
         currentIndex: _selectedIndex,
