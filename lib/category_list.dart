@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:know_your_number/category.dart';
-import 'package:know_your_number/full_dialog_page.dart';
+import 'package:know_your_number/category_detail.dart';
 import 'package:know_your_number/transaction.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:intl/intl.dart';

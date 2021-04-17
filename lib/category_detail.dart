@@ -141,7 +141,7 @@ class _CategoryDetailState extends State<CategoryDetail> {
                   ),
                   Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                     ElevatedButton(
-                      child: Text('Save'),
+                      child: Text(ConfigHelper.instance.localizations().saveButtonLabel),
                       onPressed: () {
                         String newName = nameController.text;
                         String newDescription = descriptionController.text;
@@ -149,7 +149,7 @@ class _CategoryDetailState extends State<CategoryDetail> {
                             configHelper.parseAmount(amountController.text) ??
                                 0;
                         model.addCategory(new TransactionCategory(
-                          _transactionCategory.id(),
+                          _transactionCategory?.id() ?? -1,
                           newName,
                           newDescription,
                           newAmount,
@@ -162,7 +162,7 @@ class _CategoryDetailState extends State<CategoryDetail> {
                       width: 16,
                     ),
                     ElevatedButton(
-                      child: Text('Clear'),
+                      child: Text(ConfigHelper.instance.localizations().cancelButtonLabel),
                       onPressed: _returnFunction,
                     ),
                   ]),
