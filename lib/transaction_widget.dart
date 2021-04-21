@@ -190,9 +190,7 @@ class _TransactionState extends State<TransactionWidget> {
                   ),
                   CategorySelectionWidget(
                       categoryController,
-                      (_selectedCategory) => setState(() {
-                            selectedTransactionCategory = _selectedCategory;
-                          })),
+                      (_selectedCategory) => this.selectedTransactionCategory = _selectedCategory),
                   Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                     ElevatedButton(
                       child: Text(ConfigHelper.instance

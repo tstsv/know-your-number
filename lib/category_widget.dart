@@ -75,26 +75,31 @@ class _CategorySelectionState extends State<CategorySelectionWidget> {
             children: <Widget>[
               Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                 CupertinoButton(
-                  // color: Colors.blue,
                   child: Text(
                       ConfigHelper.instance.localizations().cancelButtonLabel),
                   onPressed: () {
                     _currentSelectedIndex = originalSelectedIndex;
                     TransactionCategory selectedTransactionCategory =
-                        _categoriesList.firstWhere((element) =>
-                            element.id() == categories[_currentSelectedIndex]);
+                          _categoriesList.firstWhere(
+                              (element) => element.id() == categories[_currentSelectedIndex]);
                     _categoryController.text =
                         selectedTransactionCategory.name();
+                    _callback(selectedTransactionCategory);
                     Navigator.pop(context, _currentSelectedIndex);
                   },
                 ),
                 CupertinoButton(
-                  // color: Colors.red,
                   child: Text(
                     ConfigHelper.instance.localizations().okButtonLabel,
                     textAlign: TextAlign.end,
                   ),
                   onPressed: () {
+                    TransactionCategory selectedTransactionCategory =
+                          _categoriesList.firstWhere(
+                              (element) => element.id() == categories[_currentSelectedIndex]);
+                    _categoryController.text =
+                        selectedTransactionCategory.name();
+                    _callback(selectedTransactionCategory);
                     Navigator.pop(context, _currentSelectedIndex);
                   },
                 ),
