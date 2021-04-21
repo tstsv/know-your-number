@@ -55,6 +55,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
 
   void _onItemTapped(int index) {
     setState(() {
+      _selectedTransactionId = -1;
       _selectedIndex = index;
     });
   }
